@@ -3,7 +3,6 @@ package com.andrejczyn.kcal.api
 import com.andrejczyn.kcal.domain.product.Product
 import com.andrejczyn.kcal.domain.product.ProductRepository
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
@@ -13,7 +12,7 @@ class ProductEndpoint(val productRepository: ProductRepository) {
     @GetMapping("/products", produces = arrayOf("application/json"))
     fun getProducts(): Mono<ProductsDto> {
         return productRepository.findAll()
-                .map { ProductDto(it.id, it.name, it.calories) }
+                .map { toDto(it) }
                 .buffer()
                 .map { ProductsDto(it) }
                 .toMono()
@@ -21,10 +20,27 @@ class ProductEndpoint(val productRepository: ProductRepository) {
 
     @PostMapping("/products", consumes = arrayOf("application/json"), produces = arrayOf("application/json"))
     fun saveProduct(@RequestBody product: ProductDto): Mono<ProductDto> {
-        return productRepository.save(Product(null, product.name, product.calories))
-                .map { ProductDto(it.id, it.name, it.calories) }
+        return productRepository.save(Product(
+                null,
+                product.name,
+                product.calories,
+                product.protein,
+                product.fat,
+                product.carbohydrates
+        )).map { toDto(it) }
+    }
+
+    fun toDto(product: Product): ProductDto {
+        return ProductDto(product.id, product.name, product.calories, product.protein, product.fat, product.carbohydrates)
     }
 }
 
 data class ProductsDto(val products: List<ProductDto>)
-data class ProductDto(val id: String?, val name: String, val calories: Int)
+data class ProductDto(
+        val id: String?,
+        val name: String,
+        val calories: Int,
+        val protein: Int,
+        val fat: Int,
+        val carbohydrates: Int
+)

@@ -12,5 +12,11 @@ interface ProductRepository : ReactiveMongoRepository<Product, String> {
 
 @Document("products")
 data class Product(
-        @Id val id: String?, val name: String, val calories: Int, val createAt: Instant = Instant.now()
+        @Id val id: String?,
+        val name: String,
+        val calories: Int,
+        val protein: Int,
+        val fat: Int,
+        val carbohydrates: Int,
+        val createAt: Instant = Instant.now()
 )
