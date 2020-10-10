@@ -21,15 +21,10 @@ class ProductEndpoint(val productRepository: ProductRepository) {
 
     @PostMapping("/products", consumes = arrayOf("application/json"), produces = arrayOf("application/json"))
     fun saveProduct(@RequestBody product: ProductDto): Mono<ProductDto> {
-        return productRepository.save(Product(product.id, product.name, product.calories))
+        return productRepository.save(Product(null, product.name, product.calories))
                 .map { ProductDto(it.id, it.name, it.calories) }
     }
 }
 
-
-private fun List<Product>.mapToDto() = ProductsDto(
-        this.map { ProductDto(it.id, it.name, it.calories) }
-)
-
 data class ProductsDto(val products: List<ProductDto>)
-data class ProductDto(val id: String, val name: String, val calories: Int)
+data class ProductDto(val id: String?, val name: String, val calories: Int)

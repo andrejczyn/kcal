@@ -5,4 +5,4 @@ GET localhost:8080/products
 POST localhost:8080/products
 Content-Type: application/json
 
-{"id": "123", "name": "Marchewka", "calories": 123}
+{"name": "Marchewka", "calories": 123}
