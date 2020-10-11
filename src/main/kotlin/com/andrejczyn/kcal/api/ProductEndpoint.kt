@@ -8,7 +8,7 @@ import reactor.kotlin.core.publisher.toMono
 
 @RestController
 class ProductEndpoint(val productRepository: ProductRepository) {
-    @CrossOrigin
+
     @GetMapping("/products", produces = arrayOf("application/json"))
     fun getProducts(): Mono<ProductsDto> {
         return productRepository.findAll()
@@ -19,7 +19,7 @@ class ProductEndpoint(val productRepository: ProductRepository) {
     }
 
     @PostMapping("/products", consumes = arrayOf("application/json"), produces = arrayOf("application/json"))
-    fun saveProduct(@RequestBody product: ProductDto): Mono<ProductDto> {
+    fun createProduct(@RequestBody product: ProductDto): Mono<ProductDto> {
         return productRepository.save(Product(
                 null,
                 product.name,
@@ -28,6 +28,24 @@ class ProductEndpoint(val productRepository: ProductRepository) {
                 product.fat,
                 product.carbohydrates
         )).map { toDto(it) }
+    }
+
+    @PutMapping("/products/{id}", consumes = arrayOf("application/json"), produces = arrayOf("application/json"))
+    fun createProduct(@RequestBody product: ProductDto, @PathVariable id: String): Mono<ProductDto> {
+        return productRepository.findById(id)
+                .map { populateValues(it, product) }
+                .flatMap { productRepository.save(it) }
+                .map { toDto(it) }
+    }
+
+    fun populateValues(source: Product, dto: ProductDto): Product {
+        return source.copy(
+                name = dto.name,
+                calories = dto.calories,
+                protein = dto.protein,
+                fat = dto.fat,
+                carbohydrates = dto.carbohydrates
+        )
     }
 
     fun toDto(product: Product): ProductDto {
