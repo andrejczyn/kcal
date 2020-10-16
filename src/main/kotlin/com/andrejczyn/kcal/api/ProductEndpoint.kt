@@ -10,10 +10,11 @@ import reactor.kotlin.core.publisher.toMono
 class ProductEndpoint(val productRepository: ProductRepository) {
 
     @GetMapping("/products", produces = arrayOf("application/json"))
-    fun getProducts(): Mono<ProductsDto> {
+    fun getProducts(@RequestParam q: String? = null): Mono<ProductsDto> {
         return productRepository.findAll()
                 .map { toDto(it) }
-                .buffer()
+                .filter { if (q != null) it.name.toLowerCase().contains(q.toLowerCase()) else true }
+                .collectList()
                 .map { ProductsDto(it) }
                 .toMono()
     }
